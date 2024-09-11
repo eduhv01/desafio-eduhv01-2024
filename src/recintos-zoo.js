@@ -35,30 +35,42 @@ class RecintosZoo {
     procurarInfos(animalInfos, quantidade) {
         const recintosViaveis = [];
         const espacoNecessario = animalInfos.tamanho * quantidade;
-
+    
         for (const recinto of this.recintos) {
             const espacoDisponivelAtual = recinto.tamanhoDisponivel;
             const temBiomaAdequado = animalInfos.bioma.some(b => recinto.bioma.includes(b));
-
+    
             if (!temBiomaAdequado) continue;
-
+    
             const temEspacoParaAnimaisExistentes = recinto.animaisExistentes.every(existente => {
                 const animalExistenteInfos = this.animals.find(a => a.especie === existente);
+                
+                if (!animalExistenteInfos) return false; 
                 return animalInfos.carnivoro === animalExistenteInfos.carnivoro;
             });
-
+    
             if (!temEspacoParaAnimaisExistentes) continue;
-
+    
+            if (animalInfos.carnivoro) {
+                const temCarnivorosDeEspeciesDiferentes = recinto.animaisExistentes.some(existente => {
+                    const animalExistenteInfos = this.animals.find(a => a.especie === existente);
+                    if (!animalExistenteInfos) return false; 
+                    return animalExistenteInfos.carnivoro && animalExistenteInfos.especie !== animalInfos.especie;
+                });
+    
+                if (temCarnivorosDeEspeciesDiferentes) continue;
+            }
+    
             if (animalInfos.especie === "macaco" && quantidade === 1 && !recinto.animaisExistentes.length) continue;
-
+    
             if (animalInfos.especie === "hipopotamo" && quantidade === 1 && (!recinto.bioma.includes("savana") || !recinto.bioma.includes("rio"))) {
                 continue;
             }
-
+    
             const espaçoExtra = (recinto.animaisExistentes.length > 0 && !recinto.animaisExistentes.includes(animalInfos.especie)) ? 1 : 0;
             const espacoLivreComExtra = espacoDisponivelAtual - espaçoExtra;
             const espacoLivreFinal = espacoLivreComExtra - espacoNecessario;
-
+    
             if (espacoLivreFinal >= 0) {
                 recintosViaveis.push({
                     nome: `Recinto ${recinto.numero}`,
@@ -67,11 +79,11 @@ class RecintosZoo {
                 });
             }
         }
-
+    
         return recintosViaveis;
     }
-
-    analisaRecintos(animal, quantidade) {
+    
+ analisaRecintos(animal, quantidade) {
         const animalInfos = this.validarAQ(animal, quantidade);
 
         if (animalInfos.erro) { 
@@ -88,8 +100,7 @@ class RecintosZoo {
 
         return {
             recintosViaveis: recintosViaveis.map(recinto => 
-                `${recinto.nome} (espaço livre: ${recinto.espacoLivre} total: ${recinto.espacoTotal})`
-            )
+                `${recinto.nome} (espaço livre: ${recinto.espacoLivre} total: ${recinto.espacoTotal})`)
         };
     }
 }

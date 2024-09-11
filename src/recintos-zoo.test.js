@@ -14,7 +14,7 @@ describe('Recintos do Zoologico', () => {
             expect(resultado.recintosViaveis).toBeFalsy();
     });
 
-    test('Não deve encontrar recintos para 10 macacos', () => {
+    test('Não deve enontrar recintos para 10 macacos', () => {
             const resultado = new RecintosZoo().analisaRecintos('MACACO', 10);
             expect(resultado.erro).toBe("Não há recinto viável");
             expect(resultado.recintosViaveis).toBeFalsy();
@@ -36,19 +36,30 @@ describe('Recintos do Zoologico', () => {
         expect(resultado.recintosViaveis[2]).toBe('Recinto 3 (espaço livre: 2 total: 7)');
         expect(resultado.recintosViaveis.length).toBe(3);
     });
-
+    
     test('Não deve alocar 1 macaco em um recinto vazio', () => {
         const resultado = new RecintosZoo().analisaRecintos('macaco', 1);
         expect(resultado.erro).toBeFalsy();
         expect(resultado.recintosViaveis.some(r => r.includes('Recinto 2'))).toBeFalsy();
-    });  
+    });    
 
+    test('Não deve alocar carnívoro com outro carnívoro de espécie diferente', () => {
+        const zoo = new RecintosZoo();
+        zoo.recintos[4].animaisExistentes.push('LEAO'); 
+        const resultadoLeopardo = zoo.analisaRecintos('LEOPARDO', 1);
+    });
+    
     test('Não deve alocar hipopótamo em um recinto sem bioma de savana ou rio', () => {
         const zoo = new RecintosZoo();
         const resultado = zoo.analisaRecintos('hipopotamo', 1);
-        
+
         expect(resultado.erro).toBeFalsy();
         expect(resultado.recintosViaveis.some(r => r.includes('Recinto 2'))).toBeFalsy();
     }); 
-    
-});
+
+    test('Nao pode separar lotes de animais nem trocar os animais ja exitentes nos recintos', () => {
+        const resultado = new RecintosZoo().analisaRecintos('MACACO',12);
+        expect(resultado.erro).toBe("Não há recinto viável");
+        expect(resultado.recintosViaveis).toBeFalsy();
+    });
+})
