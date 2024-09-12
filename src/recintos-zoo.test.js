@@ -14,7 +14,7 @@ describe('Recintos do Zoologico', () => {
             expect(resultado.recintosViaveis).toBeFalsy();
     });
 
-    test('Não deve enontrar recintos para 10 macacos', () => {
+    test('Não deve encontrar recintos para 10 macacos', () => {
             const resultado = new RecintosZoo().analisaRecintos('MACACO', 10);
             expect(resultado.erro).toBe("Não há recinto viável");
             expect(resultado.recintosViaveis).toBeFalsy();
@@ -43,10 +43,11 @@ describe('Recintos do Zoologico', () => {
         expect(resultado.recintosViaveis.some(r => r.includes('Recinto 2'))).toBeFalsy();
     });    
 
-    test('Não deve alocar carnívoro com outro carnívoro de espécie diferente', () => {
+    test('Não deve alocar carnívoro com animais de espécie diferente', () => {
         const zoo = new RecintosZoo();
-        zoo.recintos[4].animaisExistentes.push('LEAO'); 
-        const resultadoLeopardo = zoo.analisaRecintos('LEOPARDO', 1);
+        const resultadoLeopardo = zoo.analisaRecintos('LEOPARDO', 1); 
+    
+        expect(resultadoLeopardo.erro).toBe("Não há recinto viável"); 
     });
     
     test('Não deve alocar hipopótamo em um recinto sem bioma de savana ou rio', () => {
@@ -57,9 +58,16 @@ describe('Recintos do Zoologico', () => {
         expect(resultado.recintosViaveis.some(r => r.includes('Recinto 2'))).toBeFalsy();
     }); 
 
-    test('Nao pode separar lotes de animais nem trocar os animais ja exitentes nos recintos', () => {
+    test('Não deve separar lotes de animais nem trocar os animais já existentes nos recintos', () => {
         const resultado = new RecintosZoo().analisaRecintos('MACACO',12);
         expect(resultado.erro).toBe("Não há recinto viável");
         expect(resultado.recintosViaveis).toBeFalsy();
+    });
+
+    test('Deve considerar espaço extra ao alocar gazelas com outras espécies', () => {
+        const zoo = new RecintosZoo();
+        const resultado = zoo.analisaRecintos('gazela', 2);
+        expect(resultado.erro).toBeFalsy();
+        expect(resultado.recintosViaveis[0]).toBe('Recinto 1 (espaço livre: 2 total: 10)');
     });
 })
